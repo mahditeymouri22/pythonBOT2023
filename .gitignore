@@ -1,67 +1,24 @@
-import telebot
-from telebot import types
+name: Python Telegram Bot
+on:
+  push:
+    branches:
+      - main
 
-# Replace 'YOUR_BOT_TOKEN' with your actual bot token
-bot = telebot.TeleBot('6652474506:AAHb6WvHA1LtkQRXaZIl8Qb-daCdr0Feb-g')
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-@bot.message_handler(commands=['start'])
-def handle_start(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("تکالیف")
-    item2 = types.KeyboardButton("سوالات")
-    item3 = types.KeyboardButton("پشتیبانی")
-    markup.add(item1, item2, item3)
-    bot.send_message(message.chat.id, "خوش آمدید! لطفا یکی از گزینه‌های زیر را انتخاب کنید:", reply_markup=markup)
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-@bot.message_handler(func=lambda message: message.text == "تکالیف")
-def handle_tasks(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    days = ["شنبه", "یکشنبه", "دوشنبه", "سه شنبه", "چهارشنبه"]
-    for day in days:
-        markup.add(types.KeyboardButton(day))
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
 
-    bot.send_message(message.chat.id, "لطفا یک روز از هفته را انتخاب کنید:", reply_markup=markup)
+    - name: Install dependencies
+      run: pip install -r requirements.txt
 
-@bot.message_handler(func=lambda message: message.text in ["شنبه", "یکشنبه", "دوشنبه", "سه شنبه", "چهارشنبه"])
-def handle_daily_schedule(message):
-    day = message.text
-    if day == "شنبه":
-        response = "شنبه\nزنگ اول: شیمی\nپرسش سوالات داده شده\nزنگ دوم: تفکر و سواد رسانه‌ای\nپرسش سوالات داده شده\nزنگ سوم: انسان و محیط زیست\nهیچ\nزنگ چهارم: کارگاه نوآوری و کارآفرینی\nحل کارگاه‌های 1 تا 4"
-    elif day == "یکشنبه":
-        response = "یکشنبه\nزنگ ها: پرسش سوالات داده شده و حل مسئله تاکسی‌رانی در اکسل"
-    elif day == "دوشنبه":
-        response = "دوشنبه\nزنگ اول: زبان\nهیچی\nزنگ دوم: ریاضی\nحل کردم سوالات 3 و 4 در صفحه 21 و صفحه 25 3 تا سوال اول حل شود\nزنگ سوم: دینی\nسوال های داده شده در دفتر نوشته شود\nزنگ چهارم: ادبیات\nشعر خوانی صفحه 15 معنی شود و فعالیت‌های اخر درس دو حل شود"
-    elif day == "سه شنبه":
-        response = "سه شنبه\nزنگ همه زنگ‌ها: طراحی وب\nهیچی"
-    elif day == "چهارشنبه":
-        response = "چهارشنبه\nزنگ اول: کاربرد فناوری\nبه یک گروه چهار نفره تقسیم شوید و تحقیق کنید صفحه 5 را انجام دهید\nزنگ دوم: تاریخ\nهیچ\nزنگ سوم: ریاضی\nبرای روز دوشنبه\nزنگ چهارم: عربی\nهیچی"
-    bot.send_message(message.chat.id, response)
-
-@bot.message_handler(func=lambda message: message.text == "سوالات")
-def handle_questions(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    subjects = ["شیمی", "تفکر و سواد رسانه‌ای", "انسان و محیط زیست", "کارگاه نوآوری و کارآفرینی", "توسعه برنامه‌سازی و پایگاه داده", "زبان", "ریاضی", "دینی", "فارسی", "پیاده‌سازی سیستم‌های اطلاعاتی و طراحی وب", "کاربرد فناوری"]
-    for subject in subjects:
-        markup.add(types.KeyboardButton(subject))
-
-    bot.send_message(message.chat.id, "لطفا یک درس را انتخاب کنید:", reply_markup=markup)
-
-# Add handlers for other subjects and actions
-
-@bot.message_handler(func=lambda message: message.text == "پشتیبانی")
-def handle_support(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    support_subjects = ["شیمی", "تفکر و سواد رسانه‌ای", "انسان و محیط زیست", "کارگاه نوآوری و کارآفرینی", "توسعه برنامه‌سازی و پایگاه داده", "زبان", "ریاضی", "دینی", "فارسی", "پیاده‌سازی سیستم‌های اطلاعاتی و طراحی وب", "کاربرد فناوری"]
-    for support_subject in support_subjects:
-        markup.add(types.KeyboardButton(support_subject))
-
-    bot.send_message(message.chat.id, "لطفا یک موضوع از لیست زیر را انتخاب کنید:", reply_markup=markup)
-
-# Add a handler for forwarding support messages
-
-@bot.message_handler(func=lambda message: message.text == "بازگشت به صفحه اصلی")
-def handle_return_to_main_menu(message):
-    markup = types.ReplyKeyboardRemove()
-    bot.send_message(message.chat.id, "بازگشت به صفحه اصلی", reply_markup=markup)
-
-bot.polling()
+    - name: Run your bot
+      run: python your_bot.py
